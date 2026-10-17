@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Виртуальное окружение
+.venv/
+venv/
+
+# Данные и секреты
+*.db
+*.db-journal
+.env
+tasks.json
+tasks.json.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# ОС
+.DS_Store
+Thumbs.db
+
+# Тесты и кэш
+.pytest_cache/
+.ruff_cache/
