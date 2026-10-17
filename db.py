@@ -1,15 +1,21 @@
-import sqlite3
+"""Слой доступа к базе данных (PostgreSQL)"""
+import os
 from contextlib import contextmanager
-from pathlib import Path
 
-DB_FILE = Path(__file__).parent / "tasks.db"
+import psycopg
+from psycopg.rows import dict_row
+
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://todo:todo@localhost:5432/todo"
+)
 
 
 @contextmanager
 def db():
     """Открывает соединение, коммитит при успехе, откатывает при ошибке, закрывает."""
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row      # доступ к колонкам по имени: row['id]
+    conn = psycopg.connect(DATABASE_URL, row_factory=dict_row)
     try:
         yield conn
         conn.commit()                   # зафиксировать изменения
@@ -23,7 +29,7 @@ def init_db():
     with db() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 title TEXT NOT NULL
             )
         """)
