@@ -1,12 +1,16 @@
 """HTTP API на FastAPI."""
 from fastapi import FastAPI, HTTPException, status
 
-from db import init_db
-from schemas import Task, TaskCreate, TaskUpdate
-from tasks import task_get, task_add, task_update_by_position, task_delete_by_position
+from schemas import Task, TaskCreate, TaskUpdate, TaskDoneUpdate
+from tasks import (
+    task_get, 
+    task_add, 
+    task_update_by_position,
+    task_set_done_by_position,
+    task_delete_by_position
+)
 
 app = FastAPI(title="Todo API", version="1.0")
-init_db()
 
 
 @app.get("/tasks", response_model=list[Task])
@@ -22,6 +26,14 @@ def create_task(payload: TaskCreate):
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task(position: int, payload: TaskUpdate):
     task = task_update_by_position(position, payload.title)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+
+@app.patch("/tasks/{position}/done", response_model=Task)
+def set_task_done(position: int, payload: TaskDoneUpdate):
+    task = task_set_done_by_position(position, payload.done)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task

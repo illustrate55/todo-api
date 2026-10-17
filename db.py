@@ -24,12 +24,3 @@ def db():
         raise
     finally:
         conn.close()                    # закрыть в любом случае
-
-def init_db():
-    with db() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS tasks (
-                id SERIAL PRIMARY KEY,
-                title TEXT NOT NULL
-            )
-        """)
