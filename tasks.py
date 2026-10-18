@@ -1,9 +1,9 @@
 from db import db
 
-def task_get() -> list[dict]:
+def task_get(user_id: int) -> list[dict]:
     with db() as conn:
         rows = conn.execute(
-            "SELECT id, title, done FROM tasks ORDER BY id"
+            "SELECT id, title, done FROM tasks WHERE user_id = %s ORDER BY id", (user_id,)
         ).fetchall()
     return [
         {"id": row["id"], "position": i, "title": row["title"], "done": row["done"]}
@@ -11,14 +11,14 @@ def task_get() -> list[dict]:
     ]
 
 
-def task_add(title: str) -> dict:
+def task_add(user_id: int, title: str) -> dict:
     with db() as conn:
         row = conn.execute(
-            "INSERT INTO tasks (title) VALUES (%s) RETURNING id, done", 
-            (title,)
+            "INSERT INTO tasks (user_id, title) VALUES (%s, %s) RETURNING id, done", 
+            (user_id, title,)
         ).fetchone()
         task_id = row["id"]
-        count = conn.execute("SELECT COUNT(*) AS c FROM tasks").fetchone()["c"]
+        count = conn.execute("SELECT COUNT(*) AS c FROM tasks WHERE user_id = %s", (user_id,)).fetchone()["c"]
     return {
         "id": task_id, 
         "position": count, 
@@ -27,11 +27,11 @@ def task_add(title: str) -> dict:
     }
 
 
-def task_update_by_position(position: int, new_title: str) -> dict | None:
+def task_update_by_position(user_id: int, position: int, new_title: str) -> dict | None:
     with db() as conn:
         row = conn.execute(
-            "SELECT id, done FROM tasks ORDER BY id LIMIT 1 OFFSET %s",
-            (position - 1,),
+            "SELECT id, done FROM tasks WHERE user_id = %s ORDER BY id LIMIT 1 OFFSET %s",
+            (user_id, position - 1,),
         ).fetchone()
         if row is None:
             return None
@@ -47,11 +47,11 @@ def task_update_by_position(position: int, new_title: str) -> dict | None:
     }
 
 
-def task_set_done_by_position(position: int, done: bool) -> dict | None:
+def task_set_done_by_position(user_id: int, position: int, done: bool) -> dict | None:
     with db() as conn:
         row = conn.execute(
-            "SELECT id, title FROM tasks ORDER BY id LIMIT 1 OFFSET %s",
-            (position - 1,),
+            "SELECT id, title FROM tasks WHERE user_id = %s ORDER BY id LIMIT 1 OFFSET %s",
+            (user_id, position - 1,),
         ).fetchone()
         if row is None:
             return None
@@ -67,11 +67,11 @@ def task_set_done_by_position(position: int, done: bool) -> dict | None:
     }
 
  
-def task_delete_by_position(position: int) -> bool:
+def task_delete_by_position(user_id: int, position: int) -> bool:
     with db() as conn:
         row = conn.execute(
-            "SELECT id FROM tasks ORDER BY id LIMIT 1 OFFSET %s", 
-            (position - 1,),
+            "SELECT id FROM tasks WHERE user_id = %s ORDER BY id LIMIT 1 OFFSET %s", 
+            (user_id, position - 1,),
         ).fetchone()
         if row is None:
             return False
