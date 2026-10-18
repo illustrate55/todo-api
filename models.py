@@ -11,6 +11,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False, unique=True, index=True)
     password_hash = Column(String(128), nullable=False)
+    refresh_token_hash = Column(String(64), nullable=True)
 
 
 class Task(Base):
