@@ -24,10 +24,17 @@ function App() {
     api.get('/users/me').then(res => setUsername(res.data.username));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuth(false);
-    setUsername('');
+    const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout'); // Сообщаем бэкенду
+    } catch (e) {
+      console.error("Logout error", e);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token'); // <-- Удаляем и refresh
+      setIsAuth(false);
+      setUsername('');
+    }
   };
 
   return (
