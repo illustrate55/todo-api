@@ -1,7 +1,7 @@
 """HTTP API на FastAPI."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, tasks
+from routers import auth, tasks, users
 
 app = FastAPI(title="Todo API", version="1.0")
 
@@ -15,3 +15,4 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
+app.include_router(users.router, prefix="/users", tags=["users"])
