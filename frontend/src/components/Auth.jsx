@@ -20,6 +20,7 @@ export default function Auth({ onLogin }) {
         
         const res = await api.post('/auth/login', formData);
         localStorage.setItem('token', res.data.access_token);
+        localStorage.setItem('refresh_token', res.data.refresh_token);
         onLogin();
       } else {
         await api.post('/auth/register', { username, password });
