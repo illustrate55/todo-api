@@ -328,3 +328,18 @@ button {
   padding: 40px 0;
   font-size: 15px;
 }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.username {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.username b {
+  color: var(--text);
+}

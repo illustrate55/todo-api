@@ -37,3 +37,16 @@ def test_login_wrong_password(client):
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid username or password"
+
+
+def test_get_current_user(client):
+    client.post("/auth/register", json={"username": "meuser", "password": "password123"})
+    response = client.post("/auth/login", data={"username": "meuser", "password": "password123"})
+    token = response.json()["access_token"]
+
+    headers = {"Authorization": f"Bearer {token}"}
+    res = client.get("/users/me", headers=headers)
+
+    assert res.status_code == 200
+    assert res.json()["username"] == "meuser"
+    assert "id" in res.json()
