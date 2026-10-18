@@ -14,12 +14,12 @@ from users import get_current_user
 router = APIRouter()
 
 
-@router.get("/tasks", response_model=list[Task])
+@router.get("", response_model=list[Task])
 def list_tasks(current_user: dict = Depends(get_current_user)):
     return task_get(current_user["id"])
 
 
-@router.post("/tasks", response_model=Task, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=Task, status_code=status.HTTP_201_CREATED)
 def create_task(payload: TaskCreate, current_user: dict = Depends(get_current_user)):
     return task_add(current_user["id"], payload.title)
 

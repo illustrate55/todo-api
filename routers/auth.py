@@ -12,7 +12,7 @@ router = APIRouter()
 def register(payload: UserCreate):
     user = user_create(payload.username, hash_password(payload.password))
     if user is None:
-        raise HTTPException(status_code=400, detail="Username alredy taken")
+        raise HTTPException(status_code=400, detail="Username already taken")
     return user
 
 @router.post("/login", response_model=Token)
