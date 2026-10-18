@@ -33,13 +33,27 @@ def user_get_by_id(user_id: int) -> dict | None:
     return dict(row) if row else None
 
 
+def update_user_refresh_token(user_id: int, token_hash: str | None):
+    with db() as conn:
+        conn.execute(
+            "UPDATE users SET refresh_token_hash = %s WHERE id = %s",
+            (token_hash, user_id)
+        )
+
+
+def user_get_by_refresh_hash(token_hash: str) -> dict | None:
+    with db() as conn:
+        row = conn.execute(
+            "SELECT id, username FROM users WHERE refresh_token_hash = %s",
+            (token_hash,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
 def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     """Декодирует токен и возвращает текущего юзера"""
-    payload = decode_token(token)
+    payload = decode_token(token, expected_type="access")
     sub = payload.get("sub")
-    if sub is None:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
-
     user = user_get_by_id(int(sub))
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")

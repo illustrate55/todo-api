@@ -50,3 +50,23 @@ def test_get_current_user(client):
     assert res.status_code == 200
     assert res.json()["username"] == "meuser"
     assert "id" in res.json()
+
+
+def test_refresh_token_flow(client):
+    client.post("/auth/register", json={"username": "refuser", "password": "password123"})
+    login_res = client.post("/auth/login", data={"username": "refuser", "password": "password123"})
+    
+    tokens = login_res.json()
+    assert "access_token" in tokens
+    assert "refresh_token" in tokens
+    
+    # Обновляем токен
+    refresh_res = client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]})
+    assert refresh_res.status_code == 200
+    new_tokens = refresh_res.json()
+    assert "access_token" in new_tokens
+    assert "refresh_token" in new_tokens
+    
+    # Старый refresh-токен больше не должен работать
+    bad_res = client.post("/auth/refresh", json={"refresh_token": tokens["refresh_token"]})
+    assert bad_res.status_code == 401
