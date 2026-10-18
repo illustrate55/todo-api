@@ -1,0 +1,53 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ "docker-postgres", "main" ]
+  pull_request:
+    branches: [ "docker-postgres", "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # 1. Поднимаем базу данных для тестов
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: todo
+          POSTGRES_PASSWORD: todo
+          POSTGRES_DB: todo_test
+        ports:
+          - 5432:5432
+        # Ждем, пока база запустится
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    # 2. Клонируем код
+    - uses: actions/checkout@v4
+
+    # 3. Устанавливаем Python
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    # 4. Устанавливаем зависимости (с кэшированием для скорости)
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 5. Запускаем тесты
+    - name: Run tests with pytest
+      env:
+        # В CI база находится на localhost, пароль из сервиса выше
+        DATABASE_URL: postgresql://todo:todo@localhost:5432/todo_test
+        JWT_SECRET: ci-secret-key-for-testing-only-32-chars-long
+      run: |
+        pytest -v
