@@ -26,3 +26,8 @@ Thumbs.db
 # Тесты и кэш
 .pytest_cache/
 .ruff_cache/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
