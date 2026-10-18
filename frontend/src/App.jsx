@@ -7,7 +7,6 @@ function App() {
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    // Если в localStorage есть токен, считаем, что юзер залогинен
     const token = localStorage.getItem('token');
     if (token) setIsAuth(true);
   }, []);
@@ -18,14 +17,23 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <header>
-        <h1>Мои Задачи</h1>
-        {isAuth && <button className="logout-btn" onClick={handleLogout}>Выйти</button>}
-      </header>
-      <main>
-        {isAuth ? <TaskList /> : <Auth onLogin={() => setIsAuth(true)} />}
-      </main>
+    <div className="app-wrapper">
+      <div className="main-card">
+        <header className="app-header">
+          <div className="logo">
+            <span className="logo-icon">✨</span>
+            <h1>Focus Board</h1>
+          </div>
+          {isAuth && (
+            <button className="btn-logout" onClick={handleLogout} title="Выйти">
+              Выйти
+            </button>
+          )}
+        </header>
+        <main className="app-content">
+          {isAuth ? <TaskList /> : <Auth onLogin={() => setIsAuth(true)} />}
+        </main>
+      </div>
     </div>
   );
 }
